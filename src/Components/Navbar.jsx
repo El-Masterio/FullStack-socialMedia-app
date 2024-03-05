@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoMdAdd, IoMdSearch } from 'react-icons/io';
+import { homeUrl } from '../utils/data';
 const Navbar = ({ searchTerm, setSearchTerm, user }) => {
   const navigate = useNavigate();
 
@@ -15,7 +16,7 @@ const Navbar = ({ searchTerm, setSearchTerm, user }) => {
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search"
           value={searchTerm}
-          onFocus={() => navigate('/search')}
+          onFocus={() => navigate(`${homeUrl}search`)}
           className="p-2 w-full bg-white outline-none"
         />
       </div>

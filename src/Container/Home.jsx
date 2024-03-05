@@ -1,13 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { HiMenu } from 'react-icons/hi';
 import { AiFillCloseCircle } from 'react-icons/ai';
-import { Link, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 
 import { Sidebar, UserProfile } from '../Components';
 import { client } from '../client';
 import logo from '../assets/logo.png';
 import Pins from './Pins';
-import { userQuery } from '../utils/data';
+import { homeUrl, userQuery } from '../utils/data';
 import { fetchUser } from '../utils/fetchUser';
 
 const Home = () => {
@@ -23,7 +23,7 @@ const Home = () => {
         setUser(data[0]);
       });
     } else {
-      navigate('/login');
+      navigate(`${homeUrl}login`);
     }
   }, []);
 
@@ -43,10 +43,10 @@ const Home = () => {
             className="cursor-pointer"
             onClick={() => setToggleSidebar(true)}
           />
-          <Link to="/">
+          <Link to={`${homeUrl}`}>
             <img src={logo} alt="logo" className="w-28" />
           </Link>
-          <Link to={`user-profile/${user?._id}`}>
+          <Link to={`${homeUrl}user-profile/${user?._id}`}>
             <img src={user?.image} alt="logo" className="w-28" />
           </Link>
         </div>
@@ -67,8 +67,11 @@ const Home = () => {
       )}
       <div className="pb-2 flex-1 h-screen overflow-y-scroll" ref={scrollRef}>
         <Routes>
-          <Route path="/user-profile/:userId" element={<UserProfile />} />
-          <Route path="/*" element={<Pins user={user && user} />} />
+          <Route
+            path={`${homeUrl}user-profile/:userId`}
+            element={<UserProfile />}
+          />
+          <Route path={`${homeUrl}*`} element={<Pins user={user && user} />} />
         </Routes>
       </div>
     </div>

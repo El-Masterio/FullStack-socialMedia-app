@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 
 import {
+  homeUrl,
   userCreatedPinsQuery,
   userQuery,
   userSavedPinsQuery,
@@ -11,8 +12,6 @@ import {
 import { client } from '../client';
 import MasonryLayout from './MasonryLayout';
 import Spinner from './Spinner';
-
-import { responseGoogle } from '../utils/fetchUser';
 
 const randomImage =
   'https://source.unsplash.com/1600x900/?nature,gaming,technology,photography';
@@ -58,7 +57,7 @@ const UserProfile = () => {
     try {
       googleLogout();
       localStorage.clear();
-      navigate('/login');
+      navigate(`${homeUrl}login`);
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -84,7 +83,6 @@ const UserProfile = () => {
               {user?.userName}
             </h1>
             <div className="absolute top-0 z-1 right-0 p-2">
-              {console.log(userId)}
               {userId === user._id && (
                 <button
                   type="button"

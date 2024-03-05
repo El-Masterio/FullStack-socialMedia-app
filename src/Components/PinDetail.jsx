@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { client, urlFor } from '../client';
 import MasonryLayout from './MasonryLayout';
-import { pinDetailMorePinQuery, pinDetailQuery } from '../utils/data';
+import { homeUrl, pinDetailMorePinQuery, pinDetailQuery } from '../utils/data';
 import Spinner from './Spinner';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
@@ -138,7 +138,7 @@ const PinDetail = ({ user }) => {
               ))}
             </div>
             <div className="flex flex-wrap mt-6 gap-3">
-              <Link to={`/user-profile/${user?._id}`}>
+              <Link to={`${homeUrl}user-profile/${user?._id}`}>
                 <img
                   src={user?.image}
                   className="w-10 h-10 rounded-full cursor-pointer"
