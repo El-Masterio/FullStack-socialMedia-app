@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/FullStack-socialMedia-app/static/css/main.44bc465b.css",
-    "main.js": "/FullStack-socialMedia-app/static/js/main.e638f802.js",
+    "main.js": "/FullStack-socialMedia-app/static/js/main.3a635ab9.js",
     "static/js/113.5a91968f.chunk.js": "/FullStack-socialMedia-app/static/js/113.5a91968f.chunk.js",
     "static/js/165.1223c8f9.chunk.js": "/FullStack-socialMedia-app/static/js/165.1223c8f9.chunk.js",
     "static/media/share.mp4": "/FullStack-socialMedia-app/static/media/share.f758eefc9ea32c312130.mp4",
@@ -9,12 +9,12 @@
     "static/media/logo.png": "/FullStack-socialMedia-app/static/media/logo.4328c7ad2adc4c03b7f3.png",
     "index.html": "/FullStack-socialMedia-app/index.html",
     "main.44bc465b.css.map": "/FullStack-socialMedia-app/static/css/main.44bc465b.css.map",
-    "main.e638f802.js.map": "/FullStack-socialMedia-app/static/js/main.e638f802.js.map",
+    "main.3a635ab9.js.map": "/FullStack-socialMedia-app/static/js/main.3a635ab9.js.map",
     "113.5a91968f.chunk.js.map": "/FullStack-socialMedia-app/static/js/113.5a91968f.chunk.js.map",
     "165.1223c8f9.chunk.js.map": "/FullStack-socialMedia-app/static/js/165.1223c8f9.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.44bc465b.css",
-    "static/js/main.e638f802.js"
+    "static/js/main.3a635ab9.js"
   ]
 }
