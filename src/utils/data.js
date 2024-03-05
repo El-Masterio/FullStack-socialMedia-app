@@ -240,4 +240,4 @@ export const feedQuery = `*[_type == "pin"] | order(_createdAt desc) {
 // the second postedBy refers to the people who like or save the post , at first the saved array would be null
 
 //just for Git hub
-export const homeUrl = '/FullStack-socialMedia-app/'; // default value is '/'
+export const homeUrl = '/'; // default value is '/'
