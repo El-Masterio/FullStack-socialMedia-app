@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin, googleLogout } from '@react-oauth/google';
+import { GoogleLogin } from '@react-oauth/google';
 import { FcGoogle } from 'react-icons/fc';
 import shareVideo from '../assets/share.mp4';
 import logo from '../assets/logowhite.png';
-import { createOrGetUser } from '../utils/data';
+
 import { jwtDecode } from 'jwt-decode';
 import { client } from '../client';
 const Login = () => {

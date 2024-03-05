@@ -15,7 +15,7 @@ const Pins = ({ user }) => {
       </div>
       <div className="h-full">
         <Routes>
-          {/* for Route when we use /:something that will be dynamic parameter that we can change inside the eleme */}
+          {/* for Route when we use /:something that will be dynamic parameter that we can change inside the element */}
           <Route path="/" element={<Feed />} />
           <Route path="/category/:categoryId" element={<Feed />} />
           <Route
