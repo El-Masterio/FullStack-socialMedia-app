@@ -1,3 +1,9 @@
+# Live Preview Link
+
+(https://el-masterio.github.io/FullStack-socialMedia-app)
+
+[ do not refreash the page manually for the time being there is an issue , also the save button does work and for some reason it leads to an 404 page so just ignore it and go back untill i fix it and the photo will be saved ] 
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
