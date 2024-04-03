@@ -9,6 +9,23 @@ import { homeUrl, pinDetailMorePinQuery, pinDetailQuery } from '../utils/data';
 import Spinner from './Spinner';
 import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
+const fetchPinDetails = (pinId, setPinDetail, setPins) => {
+  const query = pinDetailQuery(pinId);
+
+  if (query) {
+    client.fetch(`${query}`).then((data) => {
+      setPinDetail(data[0]);
+
+      if (data[0]) {
+        const query1 = pinDetailMorePinQuery(data[0]);
+        client.fetch(query1).then((res) => {
+          setPins(res);
+        });
+      }
+    });
+  }
+};
+
 const PinDetail = ({ user }) => {
   const { pinId } = useParams();
   const [pins, setPins] = useState(); // store pins with the same category to display below in similar pins
@@ -16,25 +33,8 @@ const PinDetail = ({ user }) => {
   const [comment, setComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
 
-  const fetchPinDetails = () => {
-    const query = pinDetailQuery(pinId);
-
-    if (query) {
-      client.fetch(`${query}`).then((data) => {
-        setPinDetail(data[0]);
-
-        if (data[0]) {
-          const query1 = pinDetailMorePinQuery(data[0]);
-          client.fetch(query1).then((res) => {
-            setPins(res);
-          });
-        }
-      });
-    }
-  };
-
   useEffect(() => {
-    fetchPinDetails();
+    fetchPinDetails(pinId, setPinDetail, setPins);
   }, [pinId]);
 
   const addComment = () => {
@@ -53,7 +53,7 @@ const PinDetail = ({ user }) => {
         ])
         .commit()
         .then(() => {
-          fetchPinDetails();
+          fetchPinDetails(pinId, setPinDetail, setPins);
           setComment('');
           setAddingComment(false);
         });

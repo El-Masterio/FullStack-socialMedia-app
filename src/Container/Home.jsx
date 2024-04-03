@@ -25,7 +25,8 @@ const Home = () => {
     } else {
       navigate(`${homeUrl}login`);
     }
-  }, []);
+  }, [userInfo, navigate]);
+  /* Including userInfo and navigate doesnt change anything because useEffect will only run if these two changes. Making useEffect in a sync with the variables */
 
   useEffect(() => {
     scrollRef.current.scrollTo(0, 0);

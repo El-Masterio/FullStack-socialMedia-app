@@ -35,7 +35,7 @@ const UserProfile = () => {
     client.fetch(query).then((data) => {
       setUser(data[0]);
     });
-  }, []);
+  }, [userId]);
 
   useEffect(() => {
     if (text === 'Created') {
