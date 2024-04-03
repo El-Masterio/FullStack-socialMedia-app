@@ -16,15 +16,15 @@ const Pins = ({ user }) => {
       <div className="h-full">
         <Routes>
           {/* for Route when we use /:something that will be dynamic parameter that we can change inside the element */}
-          <Route path={`/`} element={<Feed />} />
-          <Route path={`/category/:categoryId`} element={<Feed />} />
+          <Route path={'/'} element={<Feed />} />
+          <Route path={'/category/:categoryId'} element={<Feed />} />
           <Route
-            path={`/pin-detail/:pinId`}
+            path={'/pin-detail/:pinId'}
             element={<PinDetail user={user} />}
           />
           <Route path={`/create-pin`} element={<CreatePin user={user} />} />
           <Route
-            path={`/search`}
+            path={'/'}
             element={
               <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             }

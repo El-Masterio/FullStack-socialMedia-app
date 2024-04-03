@@ -46,7 +46,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
 
   const deletePin = (id) => {
     client.delete(id).then(() => {
-      window.location.reload(`https://el-masterio.github.io/`);
+      window.location.reload(`/`);
     });
   };
   return (
