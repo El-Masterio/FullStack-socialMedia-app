@@ -23,7 +23,7 @@ const Home = () => {
         setUser(data[0]);
       });
     } else {
-      navigate(`${homeUrl}login`);
+      navigate(`/FullStack-socialMedia-app/login`);
     }
   }, [userInfo, navigate]);
   /* Including userInfo and navigate doesnt change anything because useEffect will only run if these two changes. Making useEffect in a sync with the variables */
@@ -44,10 +44,10 @@ const Home = () => {
             className="cursor-pointer"
             onClick={() => setToggleSidebar(true)}
           />
-          <Link to={`${homeUrl}`}>
+          <Link to={`/FullStack-socialMedia-app/`}>
             <img src={logo} alt="logo" className="w-28" />
           </Link>
-          <Link to={`${homeUrl}user-profile/${user?._id}`}>
+          <Link to={`/FullStack-socialMedia-app/user-profile/${user?._id}`}>
             <img src={user?.image} alt="logo" className="w-28" />
           </Link>
         </div>
@@ -69,10 +69,13 @@ const Home = () => {
       <div className="pb-2 flex-1 h-screen overflow-y-scroll" ref={scrollRef}>
         <Routes>
           <Route
-            path={`${homeUrl}user-profile/:userId`}
+            path={`/FullStack-socialMedia-app/user-profile/:userId`}
             element={<UserProfile />}
           />
-          <Route path={`${homeUrl}*`} element={<Pins user={user && user} />} />
+          <Route
+            path={`/FullStack-socialMedia-app/*`}
+            element={<Pins user={user && user} />}
+          />
         </Routes>
       </div>
     </div>

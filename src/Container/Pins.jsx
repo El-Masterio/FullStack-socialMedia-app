@@ -17,18 +17,21 @@ const Pins = ({ user }) => {
       <div className="h-full">
         <Routes>
           {/* for Route when we use /:something that will be dynamic parameter that we can change inside the element */}
-          <Route path={`${homeUrl}`} element={<Feed />} />
-          <Route path={`${homeUrl}category/:categoryId`} element={<Feed />} />
+          <Route path={`/FullStack-socialMedia-app/`} element={<Feed />} />
           <Route
-            path={`${homeUrl}pin-detail/:pinId`}
+            path={`/FullStack-socialMedia-app/category/:categoryId`}
+            element={<Feed />}
+          />
+          <Route
+            path={`/FullStack-socialMedia-app/pin-detail/:pinId`}
             element={<PinDetail user={user} />}
           />
           <Route
-            path={`${homeUrl}create-pin`}
+            path={`/FullStack-socialMedia-app/create-pin`}
             element={<CreatePin user={user} />}
           />
           <Route
-            path={`${homeUrl}search`}
+            path={`/FullStack-socialMedia-app/search`}
             element={
               <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             }

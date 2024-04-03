@@ -47,7 +47,9 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
 
   const deletePin = (id) => {
     client.delete(id).then(() => {
-      window.location.reload();
+      window.location.reload(
+        `https://el-masterio.github.io/FullStack-socialMedia-app/`
+      );
     });
   };
   return (
@@ -55,7 +57,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
       <div
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
-        onClick={() => navigate(`${homeUrl}pin-detail/${_id}`)}
+        onClick={() => navigate(`/FullStack-socialMedia-app/pin-detail/${_id}`)}
         className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
       >
         <img
@@ -132,7 +134,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
         )}
       </div>
       <Link
-        to={`${homeUrl}user-profile/${postedBy?._id}`}
+        to={`/FullStack-socialMedia-app/user-profile/${postedBy?._id}`}
         className="flex gap-2 mt-2 items-center"
       >
         <img

@@ -18,7 +18,7 @@ const Sidebar = ({ user, closeToggle }) => {
     <div className="flex flex-col justify-between bg-white h-full overflow-y-scoll min-w-210 hide-scrollbar">
       <div className="flex flex-col">
         <Link
-          to={`${homeUrl}`}
+          to={`/FullStack-socialMedia-app/`}
           className="flex px-5 gap-2 my-6 pt-1 w-190 items-center"
           onClick={handleCloseSidebar}
         >
@@ -26,7 +26,7 @@ const Sidebar = ({ user, closeToggle }) => {
         </Link>
         <div className="flex flex-col gap-5">
           <NavLink
-            to={`${homeUrl}`}
+            to={`/FullStack-socialMedia-app/`}
             className={({ isActive }) =>
               isActive ? isActiveStyle : isNotActiveStyle
             }
@@ -40,7 +40,7 @@ const Sidebar = ({ user, closeToggle }) => {
           </h3>
           {categories.slice(0, categories.length - 1).map((category) => (
             <NavLink
-              to={`${homeUrl}category/${category.name}`}
+              to={`/FullStack-socialMedia-app/category/${category.name}`}
               className={({ isActive }) =>
                 isActive ? isActiveStyle : isNotActiveStyle
               }
@@ -59,7 +59,7 @@ const Sidebar = ({ user, closeToggle }) => {
       </div>
       {user && (
         <Link
-          to={`${homeUrl}user-profile/${user._id}`}
+          to={`/FullStack-socialMedia-app/user-profile/${user._id}`}
           className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
           onClick={handleCloseSidebar}
         >

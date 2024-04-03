@@ -24,7 +24,7 @@ const Login = () => {
     };
 
     client.createIfNotExists(user).then(() => {
-      navigate(`${homeUrl}`, { replace: true });
+      navigate(`/FullStack-socialMedia-app/`, { replace: true });
     });
   };
 

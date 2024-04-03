@@ -138,7 +138,7 @@ const PinDetail = ({ user }) => {
               ))}
             </div>
             <div className="flex flex-wrap mt-6 gap-3">
-              <Link to={`${homeUrl}user-profile/${user?._id}`}>
+              <Link to={`/FullStack-socialMedia-app/user-profile/${user?._id}`}>
                 <img
                   src={user?.image}
                   className="w-10 h-10 rounded-full cursor-pointer"

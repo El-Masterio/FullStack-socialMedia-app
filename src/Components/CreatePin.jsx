@@ -73,7 +73,7 @@ const CreatePin = ({ user }) => {
       };
 
       client.create(doc).then(() => {
-        navigate(`${homeUrl}`);
+        navigate(`/FullStack-socialMedia-app/`);
       });
     } else {
       setFields(true); // to show error message

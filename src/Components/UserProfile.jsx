@@ -57,7 +57,7 @@ const UserProfile = () => {
     try {
       googleLogout();
       localStorage.clear();
-      navigate(`${homeUrl}login`);
+      navigate(`/FullStack-socialMedia-app/login`);
     } catch (error) {
       console.error('Logout failed:', error);
     }
