@@ -7,7 +7,6 @@ import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../client';
 import { fetchUser } from '../utils/fetchUser';
-import { homeUrl } from '../utils/data';
 
 const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
   const [postHovered, setPostHovered] = useState(false);
@@ -40,16 +39,14 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
         ])
         .commit()
         .then(() => {
-          window.location.reload();
+          window.location.reload('/');
         });
     }
   };
 
   const deletePin = (id) => {
     client.delete(id).then(() => {
-      window.location.reload(
-        `https://el-masterio.github.io/FullStack-socialMedia-app/`
-      );
+      window.location.reload(`https://el-masterio.github.io/`);
     });
   };
   return (
@@ -57,7 +54,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
       <div
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
-        onClick={() => navigate(`/FullStack-socialMedia-app/pin-detail/${_id}`)}
+        onClick={() => navigate(`/pin-detail/${_id}`)}
         className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
       >
         <img
@@ -134,7 +131,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
         )}
       </div>
       <Link
-        to={`/FullStack-socialMedia-app/user-profile/${postedBy?._id}`}
+        to={`/user-profile/${postedBy?._id}`}
         className="flex gap-2 mt-2 items-center"
       >
         <img

@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { RiHomeFill } from 'react-icons/ri';
 
 import logo from '../assets/logo.png';
-import { categories, homeUrl } from '../utils/data';
+import { categories } from '../utils/data';
 
 const isNotActiveStyle =
   'flex items-center px-5 gap-3 text-gray-500 hover:text-black transition-all duration-200 ease-in-out capitalize';
@@ -18,7 +18,7 @@ const Sidebar = ({ user, closeToggle }) => {
     <div className="flex flex-col justify-between bg-white h-full overflow-y-scoll min-w-210 hide-scrollbar">
       <div className="flex flex-col">
         <Link
-          to={`/FullStack-socialMedia-app/`}
+          to={`/`}
           className="flex px-5 gap-2 my-6 pt-1 w-190 items-center"
           onClick={handleCloseSidebar}
         >
@@ -26,7 +26,7 @@ const Sidebar = ({ user, closeToggle }) => {
         </Link>
         <div className="flex flex-col gap-5">
           <NavLink
-            to={`/FullStack-socialMedia-app/`}
+            to={`/`}
             className={({ isActive }) =>
               isActive ? isActiveStyle : isNotActiveStyle
             }
@@ -40,7 +40,7 @@ const Sidebar = ({ user, closeToggle }) => {
           </h3>
           {categories.slice(0, categories.length - 1).map((category) => (
             <NavLink
-              to={`/FullStack-socialMedia-app/category/${category.name}`}
+              to={`/category/${category.name}`}
               className={({ isActive }) =>
                 isActive ? isActiveStyle : isNotActiveStyle
               }
@@ -59,7 +59,7 @@ const Sidebar = ({ user, closeToggle }) => {
       </div>
       {user && (
         <Link
-          to={`/FullStack-socialMedia-app/user-profile/${user._id}`}
+          to={`/user-profile/${user._id}`}
           className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
           onClick={handleCloseSidebar}
         >

@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { googleLogout } from '@react-oauth/google';
 
 import {
-  homeUrl,
   userCreatedPinsQuery,
   userQuery,
   userSavedPinsQuery,
@@ -57,7 +56,7 @@ const UserProfile = () => {
     try {
       googleLogout();
       localStorage.clear();
-      navigate(`/FullStack-socialMedia-app/login`);
+      navigate(`/login`);
     } catch (error) {
       console.error('Logout failed:', error);
     }

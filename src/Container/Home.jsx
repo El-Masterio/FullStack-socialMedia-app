@@ -7,7 +7,7 @@ import { Sidebar, UserProfile } from '../Components';
 import { client } from '../client';
 import logo from '../assets/logo.png';
 import Pins from './Pins';
-import { homeUrl, userQuery } from '../utils/data';
+import { userQuery } from '../utils/data';
 import { fetchUser } from '../utils/fetchUser';
 
 const Home = () => {
@@ -23,7 +23,7 @@ const Home = () => {
         setUser(data[0]);
       });
     } else {
-      navigate(`/FullStack-socialMedia-app/login`);
+      navigate(`/login`);
     }
   }, [userInfo, navigate]);
   /* Including userInfo and navigate doesnt change anything because useEffect will only run if these two changes. Making useEffect in a sync with the variables */
@@ -44,10 +44,10 @@ const Home = () => {
             className="cursor-pointer"
             onClick={() => setToggleSidebar(true)}
           />
-          <Link to={`/FullStack-socialMedia-app/`}>
+          <Link to={`/`}>
             <img src={logo} alt="logo" className="w-28" />
           </Link>
-          <Link to={`/FullStack-socialMedia-app/user-profile/${user?._id}`}>
+          <Link to={`/user-profile/${user?._id}`}>
             <img src={user?.image} alt="logo" className="w-28" />
           </Link>
         </div>
@@ -68,14 +68,8 @@ const Home = () => {
       )}
       <div className="pb-2 flex-1 h-screen overflow-y-scroll" ref={scrollRef}>
         <Routes>
-          <Route
-            path={`/FullStack-socialMedia-app/user-profile/:userId`}
-            element={<UserProfile />}
-          />
-          <Route
-            path={`/FullStack-socialMedia-app/*`}
-            element={<Pins user={user && user} />}
-          />
+          <Route path={`/user-profile/:userId`} element={<UserProfile />} />
+          <Route path={`/*`} element={<Pins user={user && user} />} />
         </Routes>
       </div>
     </div>

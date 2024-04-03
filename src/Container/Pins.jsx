@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navbar, Feed, PinDetail, CreatePin, Search } from '../Components';
-import { homeUrl } from '../utils/data';
 
 const Pins = ({ user }) => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,21 +16,15 @@ const Pins = ({ user }) => {
       <div className="h-full">
         <Routes>
           {/* for Route when we use /:something that will be dynamic parameter that we can change inside the element */}
-          <Route path={`/FullStack-socialMedia-app/`} element={<Feed />} />
+          <Route path={`/`} element={<Feed />} />
+          <Route path={`/category/:categoryId`} element={<Feed />} />
           <Route
-            path={`/FullStack-socialMedia-app/category/:categoryId`}
-            element={<Feed />}
-          />
-          <Route
-            path={`/FullStack-socialMedia-app/pin-detail/:pinId`}
+            path={`/pin-detail/:pinId`}
             element={<PinDetail user={user} />}
           />
+          <Route path={`/create-pin`} element={<CreatePin user={user} />} />
           <Route
-            path={`/FullStack-socialMedia-app/create-pin`}
-            element={<CreatePin user={user} />}
-          />
-          <Route
-            path={`/FullStack-socialMedia-app/search`}
+            path={`/search`}
             element={
               <Search searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
             }

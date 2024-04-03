@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { client } from '../client';
 import Spinner from './Spinner';
 // categories [{ name: 'sports' , image: '' }]
-import { categories, homeUrl } from '../utils/data';
+import { categories } from '../utils/data';
 
 const CreatePin = ({ user }) => {
   const [title, setTitle] = useState('');
@@ -73,7 +73,7 @@ const CreatePin = ({ user }) => {
       };
 
       client.create(doc).then(() => {
-        navigate(`/FullStack-socialMedia-app/`);
+        navigate(`/`);
       });
     } else {
       setFields(true); // to show error message

@@ -6,7 +6,7 @@ import logo from '../assets/logowhite.png';
 
 import { jwtDecode } from 'jwt-decode';
 import { client } from '../client';
-import { homeUrl } from '../utils/data';
+
 const Login = () => {
   const navigate = useNavigate();
 
@@ -24,7 +24,7 @@ const Login = () => {
     };
 
     client.createIfNotExists(user).then(() => {
-      navigate(`/FullStack-socialMedia-app/`, { replace: true });
+      navigate(`/`, { replace: true });
     });
   };
 
