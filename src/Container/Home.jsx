@@ -17,7 +17,7 @@ const Home = () => {
   const userInfo = fetchUser();
   const navigate = useNavigate();
   useEffect(() => {
-    if (userInfo?.sub) {
+    if (userInfo?.sub !== undefined) {
       const query = userQuery(userInfo?.sub);
       client.fetch(query).then((data) => {
         setUser(data[0]);
