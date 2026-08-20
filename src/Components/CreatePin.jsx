@@ -29,6 +29,7 @@ const CreatePin = ({ user }) => {
   const [destination, setDestination] = useState('');
   const [loading, setLoading] = useState(false);
   const [fields, setFields] = useState(false);
+  const [saving, setSaving] = useState(false);
   /* Arriving from an empty category page pre-selects that category. */
   const [category, setCategory] = useState(location.state?.category || '');
   const [imageAsset, setImageAsset] = useState(null);
@@ -57,19 +58,29 @@ const CreatePin = ({ user }) => {
       });
   };
 
+  /* Only a photo, a title and a category are required. Description and link
+     are optional, and are omitted from the document entirely when blank
+     rather than stored as empty strings. */
+  const missing = [
+    !imageAsset?._id && 'an image',
+    !title.trim() && 'a title',
+    !category && 'a category',
+  ].filter(Boolean);
+
   const savePin = () => {
-    if (!(title && about && destination && imageAsset?._id && category)) {
+    if (missing.length) {
       setFields(true);
-      setTimeout(() => setFields(false), 2500);
+      setTimeout(() => setFields(false), 3000);
       return;
     }
 
+    setSaving(true);
     client
       .create({
         _type: 'pin',
-        title,
-        about,
-        destination,
+        title: title.trim(),
+        ...(about.trim() ? { about: about.trim() } : {}),
+        ...(destination.trim() ? { destination: destination.trim() } : {}),
         image: {
           _type: 'image',
           asset: { _type: 'reference', _ref: imageAsset._id },
@@ -78,7 +89,11 @@ const CreatePin = ({ user }) => {
         postedBy: { _type: 'postedBy', _ref: user._id },
         category,
       })
-      .then(() => navigate('/'));
+      .then(() => navigate('/'))
+      .catch((err) => {
+        console.error('Could not publish pin', err);
+        setSaving(false);
+      });
   };
 
   return (
@@ -96,7 +111,7 @@ const CreatePin = ({ user }) => {
           className="mb-5 rounded-card border border-accent/30 bg-accent-soft
                      px-4 py-3 text-sm font-medium text-accent"
         >
-          Please fill in every field and choose an image.
+          Still needed: {missing.join(', ')}.
         </p>
       )}
 
@@ -162,7 +177,7 @@ const CreatePin = ({ user }) => {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Add your title"
+            placeholder="Add your title *"
             className={`${field} font-display text-2xl font-semibold`}
           />
 
@@ -178,7 +193,7 @@ const CreatePin = ({ user }) => {
           <textarea
             value={about}
             onChange={(e) => setAbout(e.target.value)}
-            placeholder="Tell everyone what your pin is about"
+            placeholder="Tell everyone what your pin is about (optional)"
             rows={3}
             className={`${field} resize-none`}
           />
@@ -187,7 +202,7 @@ const CreatePin = ({ user }) => {
             type="text"
             value={destination}
             onChange={(e) => setDestination(e.target.value)}
-            placeholder="https://example.com"
+            placeholder="Source or reference link, e.g. https://unsplash.com/… (optional)"
             className={field}
           />
 
@@ -197,7 +212,7 @@ const CreatePin = ({ user }) => {
               className="mb-2 block text-[0.7rem] font-semibold uppercase
                          tracking-[0.14em] text-faint"
             >
-              Category
+              Category <span className="text-accent">*</span>
             </label>
             {/* Controlled, with explicit option values. Previously the value
                 came from the option's text content, which meant it could not
@@ -217,13 +232,21 @@ const CreatePin = ({ user }) => {
             </select>
           </div>
 
-          <button
-            type="button"
-            onClick={savePin}
-            className="btn-accent mt-1 w-full px-6 py-3.5 text-sm md:w-auto md:self-end"
-          >
-            Publish pin
-          </button>
+          <div className="mt-1 flex flex-col gap-2 md:items-end">
+            <p className="text-xs text-faint">
+              <span className="text-accent">*</span> required — everything else
+              is optional
+            </p>
+            <button
+              type="button"
+              onClick={savePin}
+              disabled={saving}
+              className="btn-accent w-full px-6 py-3.5 text-sm
+                         disabled:cursor-not-allowed disabled:opacity-60 md:w-auto"
+            >
+              {saving ? 'Publishing…' : 'Publish pin'}
+            </button>
+          </div>
         </div>
       </div>
     </div>
