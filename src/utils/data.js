@@ -74,7 +74,8 @@ export const pinDetailQuery = (pinId) => {
   const query = `*[_type == "pin" && _id == '${pinId}']{
     image{
       asset->{
-        url
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
       }
     },
     _id,
@@ -111,7 +112,8 @@ export const pinDetailMorePinQuery = (pin) => {
   const query = `*[_type == "pin" && category == '${pin.category}' && _id != '${pin._id}' ]{
     image{
       asset->{
-        url
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
       }
     },
     _id,
@@ -142,7 +144,8 @@ export const userCreatedPinsQuery = (userId) => {
   const query = `*[ _type == 'pin' && userId == '${userId}'] | order(_createdAt desc){
     image{
       asset->{
-        url
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
       }
     },
     _id,
@@ -167,7 +170,8 @@ export const userSavedPinsQuery = (userId) => {
   const query = `*[_type == 'pin' && '${userId}' in save[].userId ] | order(_createdAt desc) {
     image{
       asset->{
-        url
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
       }
     },
     _id,
@@ -193,8 +197,9 @@ export const searchQuery = (searchTerm) => {
   const query = `*[_type == "pin" && title match '${searchTerm}*' || category match '${searchTerm}*' || about match '${searchTerm}*']{
         image{
           asset->{
-            url
-          }
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
+      }
         },
             _id,
             destination,
@@ -218,8 +223,9 @@ export const searchQuery = (searchTerm) => {
 export const feedQuery = `*[_type == "pin"] | order(_createdAt desc) {
   image{
     asset->{
-      url
-    }
+        url,
+        metadata{dimensions{width,height,aspectRatio}}
+      }
   },
       _id,
       destination,

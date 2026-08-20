@@ -6,3 +6,8 @@ export { default as CreatePin } from './CreatePin';
 export { default as PinDetail } from './PinDetail';
 export { default as Feed } from './Feed';
 export { default as Search } from './Search';
+export { default as Avatar } from './Avatar';
+export { default as EmptyState } from './EmptyState';
+export { default as PinSkeleton } from './PinSkeleton';
+export { default as ThemeToggle } from './ThemeToggle';
+export { default as Spinner } from './Spinner';

@@ -1,179 +1,203 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { MdDownloadForOffline } from 'react-icons/md';
 import { Link, useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
+import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../client';
 import MasonryLayout from './MasonryLayout';
 import { pinDetailMorePinQuery, pinDetailQuery } from '../utils/data';
 import Spinner from './Spinner';
-import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
+import Avatar from './Avatar';
 
 const fetchPinDetails = (pinId, setPinDetail, setPins) => {
-  const query = pinDetailQuery(pinId);
-
-  if (query) {
-    client.fetch(`${query}`).then((data) => {
-      setPinDetail(data[0]);
-
-      if (data[0]) {
-        const query1 = pinDetailMorePinQuery(data[0]);
-        client.fetch(query1).then((res) => {
-          setPins(res);
-        });
-      }
-    });
-  }
+  client.fetch(pinDetailQuery(pinId)).then((data) => {
+    setPinDetail(data[0]);
+    if (data[0]) {
+      client.fetch(pinDetailMorePinQuery(data[0])).then(setPins);
+    }
+  });
 };
 
 const PinDetail = ({ user }) => {
   const { pinId } = useParams();
-  const [pins, setPins] = useState(); // store pins with the same category to display below in similar pins
-  const [pinDetail, setPinDetail] = useState(); // detail for one pin
+  const [pins, setPins] = useState();
+  const [pinDetail, setPinDetail] = useState();
   const [comment, setComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
 
   useEffect(() => {
     fetchPinDetails(pinId, setPinDetail, setPins);
+    window.scrollTo(0, 0);
   }, [pinId]);
 
   const addComment = () => {
-    if (comment) {
-      setAddingComment(true);
+    if (!comment.trim()) return;
+    setAddingComment(true);
 
-      client
-        .patch(pinId)
-        .setIfMissing({ comments: [] })
-        .insert('after', 'comments[-1]', [
-          {
-            comment,
-            _key: uuidv4(),
-            postedBy: { _type: 'postedBy', _ref: user._id },
-          },
-        ])
-        .commit()
-        .then(() => {
-          fetchPinDetails(pinId, setPinDetail, setPins);
-          setComment('');
-          setAddingComment(false);
-        });
-    }
+    client
+      .patch(pinId)
+      .setIfMissing({ comments: [] })
+      .insert('after', 'comments[-1]', [
+        {
+          comment,
+          _key: uuidv4(),
+          postedBy: { _type: 'postedBy', _ref: user._id },
+        },
+      ])
+      .commit()
+      .then(() => {
+        fetchPinDetails(pinId, setPinDetail, setPins);
+        setComment('');
+        setAddingComment(false);
+      })
+      .catch(() => setAddingComment(false));
   };
 
-  if (!pinDetail) {
-    return <Spinner message="Showing pin" />;
-  }
+  if (!pinDetail) return <Spinner message="Loading pin…" />;
+
+  const { image, title, about, destination, postedBy, comments } = pinDetail;
 
   return (
-    <>
-      {pinDetail && (
-        <div
-          className="flex xl:flex-row flex-col m-auto bg-white"
-          style={{ maxWidth: '1500px', borderRadius: '32px' }}
-        >
-          <div className="flex justify-center items-center md:items-start flex-initial">
-            <img
-              className="rounded-t-3xl rounded-b-lg w-96 "
-              src={pinDetail?.image && urlFor(pinDetail?.image).url()}
-              alt="user-post"
-            />
-          </div>
-          <div className="w-full p-5 flex-1 xl:min-w-620">
-            <div className="flex items-center justify-center gap-40">
-              <div className="flex gap-2 items-center">
-                <a
-                  href={`${pinDetail.image.asset.url}?dl=`}
-                  download
-                  className="bg-red-500 w-9 h-9 rounded-full flex justify-center items-center text-white text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
-                >
-                  <MdDownloadForOffline />
-                </a>
-              </div>
+    <div className="pb-10">
+      <div className="mx-auto flex max-w-6xl flex-col overflow-hidden
+                      rounded-card border border-edge bg-surface shadow-lift
+                      lg:flex-row">
+        <div className="flex flex-initial items-start justify-center bg-raised
+                        lg:max-w-[52%]">
+          <img
+            className="h-auto w-full object-contain"
+            src={image && urlFor(image).width(1200).auto('format').url()}
+            alt={title || 'Pin'}
+          />
+        </div>
+
+        <div className="flex w-full flex-1 flex-col p-6 md:p-8">
+          <div className="mb-5 flex items-center gap-3">
+            <a
+              href={image?.asset?.url ? `${image.asset.url}?dl=` : undefined}
+              download
+              aria-label="Download image"
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full
+                         bg-raised text-ink transition hover:bg-accent
+                         hover:text-on-accent"
+            >
+              <MdDownloadForOffline size={20} />
+            </a>
+
+            {/* Guarded: this used to render the string "null" when a pin had
+                no destination. */}
+            {destination && (
               <a
-                href={pinDetail.destination}
+                href={destination}
                 target="_blank"
                 rel="noreferrer"
-                className="bg-blue-500 flex items-center gap-2 text-white font-bold p-2 pl-4 pr-4 rounded-full opacity-70 hover:opacity-100 hover:shadow-md"
+                className="flex min-w-0 max-w-[16rem] items-center gap-2 rounded-pill
+                           bg-raised px-4 py-2.5 text-sm font-medium text-ink
+                           transition hover:bg-edge md:max-w-sm"
               >
-                <BsFillArrowUpRightCircleFill />
-                {pinDetail.destination.length > 15
-                  ? `${pinDetail.destination.slice(0, 15)}...`
-                  : pinDetail.destination}
+                <BsFillArrowUpRightCircleFill size={14} className="shrink-0" />
+                <span className="truncate">
+                  {destination.replace(/^https?:\/\/(www\.)?/, '')}
+                </span>
               </a>
+            )}
+          </div>
+
+          <h1 className="break-words text-3xl leading-tight text-ink md:text-4xl">
+            {title}
+          </h1>
+          {about && (
+            <p className="mt-3 max-w-reading text-[0.95rem] leading-relaxed text-muted">
+              {about}
+            </p>
+          )}
+
+          <Link
+            to={`/user-profile/${postedBy?._id}`}
+            className="mt-6 flex w-fit items-center gap-3 rounded-pill
+                       bg-raised py-2 pl-2 pr-5 transition hover:bg-edge"
+          >
+            <Avatar src={postedBy?.image} name={postedBy?.userName} size="sm" />
+            <div className="leading-tight">
+              <p className="text-sm font-semibold capitalize text-ink">
+                {postedBy?.userName}
+              </p>
+              <p className="text-xs text-faint">Creator</p>
             </div>
-            <div>
-              <h1 className="text-4xl font-bold break-words mt-3">
-                {pinDetail.title}
-              </h1>
-              <p className="mt-3">{pinDetail.about}</p>
-            </div>
-            <Link
-              to={`/user-profile/${pinDetail?.postedBy._id}`}
-              className="flex gap-2 mt-5 items-center bg-white rounded-lg "
-            >
-              <img
-                src={pinDetail?.postedBy.image}
-                className="w-10 h-10 rounded-full"
-                alt="user-profile"
-              />
-              <p className="font-bold">{pinDetail?.postedBy.userName}</p>
-            </Link>
-            <h2 className="mt-5 text-2xl">Comments</h2>
-            <div className="max-h-370 overflow-y-auto">
-              {pinDetail?.comments?.map((item) => (
-                <div
-                  className="flex gap-2 mt-5 items-center bg-white rounded-lg"
-                  key={item.comment}
-                >
-                  <img
+          </Link>
+
+          <h2 className="mb-1 mt-8 text-xl text-ink">
+            {comments?.length
+              ? `${comments.length} ${
+                  comments.length === 1 ? 'comment' : 'comments'
+                }`
+              : 'Comments'}
+          </h2>
+
+          <div className="hide-scrollbar max-h-80 flex-1 overflow-y-auto pr-1">
+            {comments?.length ? (
+              comments.map((item) => (
+                /* Keyed by _key, not the comment text - two identical
+                   comments used to collide and drop one of them. */
+                <div key={item._key} className="flex gap-3 py-3">
+                  <Avatar
                     src={item.postedBy?.image}
-                    className="w-10 h-10 rounded-full cursor-pointer"
-                    alt="user-profile"
+                    name={item.postedBy?.userName}
+                    size="sm"
                   />
-                  <div className="flex flex-col">
-                    <p className="font-bold">{item.postedBy?.userName}</p>
-                    <p>{item.comment}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold capitalize text-ink">
+                      {item.postedBy?.userName}
+                    </p>
+                    <p className="text-sm leading-relaxed text-muted">
+                      {item.comment}
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
-            <div className="flex flex-wrap mt-6 gap-3">
-              <Link to={`/user-profile/${user?._id}`}>
-                <img
-                  src={user?.image}
-                  className="w-10 h-10 rounded-full cursor-pointer"
-                  alt="user-profile"
-                />
-              </Link>
-              <input
-                className=" flex-1 border-gray-100 outline-none border-2 p-2 rounded-2xl focus:border-gray-300"
-                type="text"
-                placeholder="Add a comment"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-              />
-              <button
-                type="button"
-                className="bg-red-500 text-white rounded-full px-6 py-2 font-semibold text-base outline-none"
-                onClick={addComment}
-              >
-                {addingComment ? 'Posting...' : 'Post Comment'}
-              </button>
-            </div>
+              ))
+            ) : (
+              <p className="py-3 text-sm text-faint">
+                No comments yet — start the conversation.
+              </p>
+            )}
+          </div>
+
+          <div className="mt-5 flex items-center gap-2 border-t border-edge pt-5">
+            <Avatar src={user?.image} name={user?.userName} size="sm" />
+            <input
+              className="min-w-0 flex-1 rounded-pill border border-edge bg-canvas
+                         px-4 py-2.5 text-sm text-ink outline-none transition
+                         placeholder:text-faint focus:border-accent
+                         focus:ring-2 focus:ring-accent/25"
+              type="text"
+              placeholder="Add a comment"
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && addComment()}
+            />
+            <button
+              type="button"
+              onClick={addComment}
+              disabled={addingComment || !comment.trim()}
+              className="btn-accent shrink-0 px-5 py-2.5 text-sm
+                         disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              {addingComment ? 'Posting…' : 'Post'}
+            </button>
           </div>
         </div>
-      )}
+      </div>
+
       {pins?.length > 0 && (
-        <h2 className="text-center font-bold text-2xl mt-8 mb-4">
-          More like this
-        </h2>
+        <>
+          <h2 className="mb-5 mt-12 text-center text-2xl text-ink">
+            More like this
+          </h2>
+          <MasonryLayout pins={pins} />
+        </>
       )}
-      {pins ? (
-        <MasonryLayout pins={pins} />
-      ) : (
-        <Spinner message="Loading more pins" />
-      )}
-    </>
+    </div>
   );
 };
 

@@ -1,74 +1,87 @@
-import React from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { RiHomeFill } from 'react-icons/ri';
 
 import logo from '../assets/logo.png';
+import logoWhite from '../assets/logowhite.png';
 import { categories } from '../utils/data';
+import Avatar from './Avatar';
 
-const isNotActiveStyle =
-  'flex items-center px-5 gap-3 text-gray-500 hover:text-black transition-all duration-200 ease-in-out capitalize';
-const isActiveStyle =
-  'flex items-center px-5 gap-3 font-extrabold border-r-2 border-black transition-all duration-200 ease-in-out capitalize';
+const link =
+  'flex items-center gap-3 rounded-pill px-4 py-2.5 text-[0.9rem] capitalize transition-all duration-200 ease-out';
+const idle = `${link} text-muted hover:bg-raised hover:text-ink`;
+const active = `${link} bg-accent-soft font-semibold text-accent`;
 
 const Sidebar = ({ user, closeToggle }) => {
-  const handleCloseSidebar = () => {
-    if (closeToggle) closeToggle(false);
-  };
+  const close = () => closeToggle && closeToggle(false);
+
   return (
-    <div className="flex flex-col justify-between bg-white h-full overflow-y-scoll min-w-210 hide-scrollbar">
-      <div className="flex flex-col">
+    <div className="flex h-full min-w-[240px] flex-col justify-between
+                    border-r border-edge bg-surface">
+      <div className="flex min-h-0 flex-1 flex-col">
         <Link
-          to={`/`}
-          className="flex px-5 gap-2 my-6 pt-1 w-190 items-center"
-          onClick={handleCloseSidebar}
+          to="/"
+          onClick={close}
+          aria-label="Picture Perfect, home"
+          className="flex shrink-0 items-center px-5 pb-4 pt-6"
         >
-          <img src={logo} alt="logo" className="w-full" />
+          {/* Two marks, one per theme - the dark logo is invisible on ink. */}
+          <img src={logo} alt="" className="w-36 dark:hidden" />
+          <img
+            src={logoWhite}
+            alt=""
+            className="hidden w-36 dark:block"
+          />
         </Link>
-        <div className="flex flex-col gap-5">
+
+        <div className="hide-scrollbar flex-1 overflow-y-auto px-3 pb-4">
           <NavLink
-            to={`/`}
-            className={({ isActive }) =>
-              isActive ? isActiveStyle : isNotActiveStyle
-            }
-            onClick={handleCloseSidebar}
+            to="/"
+            end
+            onClick={close}
+            className={({ isActive }) => (isActive ? active : idle)}
           >
-            <RiHomeFill />
+            <RiHomeFill size={18} />
             Home
           </NavLink>
-          <h3 className="mt-2 px-5 text-base 2xl:text-xl">
-            Discover categories
+
+          <h3 className="px-4 pb-2 pt-6 font-sans text-[0.7rem] font-semibold
+                         uppercase tracking-[0.14em] text-faint">
+            Discover
           </h3>
+
           {categories.slice(0, categories.length - 1).map((category) => (
             <NavLink
-              to={`/category/${category.name}`}
-              className={({ isActive }) =>
-                isActive ? isActiveStyle : isNotActiveStyle
-              }
-              onClick={handleCloseSidebar}
               key={category.name}
+              to={`/category/${category.name}`}
+              onClick={close}
+              className={({ isActive }) => (isActive ? active : idle)}
             >
               <img
-                src={category?.image}
-                className="w-8 h-8 rounded-full shadow-sm"
-                alt="category"
+                src={category.image}
+                alt=""
+                loading="lazy"
+                className="h-7 w-7 shrink-0 rounded-full object-cover"
               />
               {category.name}
             </NavLink>
           ))}
         </div>
       </div>
-      {user && (
+
+      {user?._id && (
         <Link
           to={`/user-profile/${user._id}`}
-          className="flex my-5 mb-3 gap-2 p-2 items-center bg-white rounded-lg shadow-lg mx-3"
-          onClick={handleCloseSidebar}
+          onClick={close}
+          className="m-3 flex shrink-0 items-center gap-3 rounded-card border
+                     border-edge bg-raised p-3 transition-colors hover:bg-edge"
         >
-          <img
-            src={user.image}
-            className="w-10 h-10 rounded-full"
-            alt="user-profile"
-          />
-          <p>{user.userName}</p>
+          <Avatar src={user.image} name={user.userName} size="sm" />
+          <div className="min-w-0">
+            <p className="truncate text-sm font-semibold capitalize text-ink">
+              {user.userName}
+            </p>
+            <p className="text-xs text-faint">View profile</p>
+          </div>
         </Link>
       )}
     </div>

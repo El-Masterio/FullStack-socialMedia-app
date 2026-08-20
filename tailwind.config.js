@@ -1,95 +1,61 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  purge: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
-  darkMode: false, // or 'media' or 'class'
+  content: ['./src/**/*.{js,jsx,ts,tsx}', './public/index.html'],
+  darkMode: 'class',
   theme: {
     extend: {
-      margin: {
-        320: '320px',
+      /* Every colour resolves through a CSS variable so light/dark is a single
+         class swap on <html> rather than a `dark:` variant on every element. */
+      colors: {
+        canvas: 'rgb(var(--c-canvas) / <alpha-value>)',
+        surface: 'rgb(var(--c-surface) / <alpha-value>)',
+        raised: 'rgb(var(--c-raised) / <alpha-value>)',
+        ink: 'rgb(var(--c-ink) / <alpha-value>)',
+        muted: 'rgb(var(--c-muted) / <alpha-value>)',
+        faint: 'rgb(var(--c-faint) / <alpha-value>)',
+        edge: 'rgb(var(--c-edge) / <alpha-value>)',
+        accent: 'rgb(var(--c-accent) / <alpha-value>)',
+        'accent-soft': 'rgb(var(--c-accent-soft) / <alpha-value>)',
+        'on-accent': 'rgb(var(--c-on-accent) / <alpha-value>)',
       },
-      width: {
-        190: '190px',
-        275: '275px',
-        300: '300px',
-        340: '340px',
-        350: '350px',
-        656: '656px',
-        880: '880px',
-        508: '508px',
+      fontFamily: {
+        display: ['Fraunces', 'Georgia', 'serif'],
+        sans: ['Archivo', 'system-ui', 'sans-serif'],
       },
-      height: {
-        80: '80px',
-        340: '340px',
-        370: '370px',
-        420: '420px',
-        510: '510px',
-        600: '600px',
-        685: '685px',
-        800: '800px',
-        '90vh': '90vh',
+      borderRadius: {
+        card: '14px',
+        pill: '999px',
       },
-      flex: {
-        0.7: '0.7 1 0%',
+      boxShadow: {
+        lift: '0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px -8px rgb(0 0 0 / 0.14)',
+        hover: '0 2px 4px rgb(0 0 0 / 0.06), 0 18px 40px -12px rgb(0 0 0 / 0.28)',
+        inset: 'inset 0 0 0 1px rgb(var(--c-edge) / 0.9)',
       },
-      maxHeight: {
-        370: '370px',
-      },
-      minWidth: {
-        210: '210px',
-        350: '350px',
-        620: '620px',
-      },
-      textColor: {
-        lightGray: '#F1EFEE',
-        primary: '#FAFAFA',
-        secColor: '#efefef',
-        navColor: '#BEBEBE',
-      },
-      backgroundColor: {
-        mainColor: '#FBF8F9',
-        secondaryColor: '#F0F0F0',
-        blackOverlay: 'rgba(0, 0 ,0 ,0.7)',
+      maxWidth: {
+        reading: '68ch',
       },
       keyframes: {
         'slide-in': {
-          '0%': {
-            '-webkit-transform': 'translateX(-200px)',
-            transform: 'translateX(-200px)',
-          },
-          '100%': {
-            '-webkit-transform': 'translateX(0px)',
-            transform: 'translateX(0px)',
-          },
+          '0%': { transform: 'translateX(-200px)', opacity: '0' },
+          '100%': { transform: 'translateX(0)', opacity: '1' },
         },
-
-        'slide-fwd': {
-          '0%': {
-            '-webkit-transform': 'translateZ(0px)',
-            transform: 'translateZ(0px)',
-          },
-          '100%': {
-            '-webkit-transform': 'translateZ(160px)',
-            transform: 'translateZ(160px)',
-          },
+        rise: {
+          '0%': { transform: 'translateY(10px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
         },
       },
       animation: {
-        'slide-in': 'slide-in 0.5s ease-out',
-        'slide-fwd':
-          ' slide-fwd 0.45s cubic-bezier(0.250, 0.460, 0.450, 0.940) both',
+        'slide-in': 'slide-in 0.35s cubic-bezier(0.22, 1, 0.36, 1)',
+        rise: 'rise 0.45s cubic-bezier(0.22, 1, 0.36, 1) both',
+        shimmer: 'shimmer 1.6s infinite',
       },
-      transitionProperty: {
-        height: 'height',
+      transitionTimingFunction: {
+        out: 'cubic-bezier(0.22, 1, 0.36, 1)',
       },
     },
-    cursor: {
-      'zoom-in': 'zoom-in',
-      pointer: 'pointer',
-    },
-  },
-  variants: {
-    // backgroundColor: ['active'],
-    extend: {},
   },
   plugins: [],
 };

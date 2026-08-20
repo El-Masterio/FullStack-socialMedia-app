@@ -1,24 +1,28 @@
-import React from 'react';
 import Masonry from 'react-masonry-css';
 import Pin from './Pin';
 
-const breakpointObj = {
-  default: 4,
-  3000: 5, // this is to set how many images in a row to display (in 3000 or more show 6 and other values)
-  2000: 4,
-  1200: 3,
-  1000: 2,
-  500: 1,
+/* Keys are max-widths. Exported so PinSkeleton lays out on the same grid,
+   which stops the column count jumping when real pins replace the skeleton. */
+export const breakpointObj = {
+  default: 5,
+  1800: 4,
+  1280: 3,
+  900: 2,
+  600: 1,
 };
 
-const MasonryLayout = ({ pins }) => {
-  return (
-    <Masonry className="flex animate-slide-fwd" breakpointCols={breakpointObj}>
-      {pins?.map((pin) => (
-        <Pin key={pin._id} pin={pin} className="w-max " />
-      ))}
-    </Masonry>
-  );
-};
+const MasonryLayout = ({ pins }) => (
+  /* Negative margin + matching column padding is react-masonry-css's
+     gutter idiom; the old version had no gutter at all. */
+  <Masonry
+    className="flex -ml-4 w-auto"
+    columnClassName="pl-4 bg-clip-padding"
+    breakpointCols={breakpointObj}
+  >
+    {pins?.map((pin, i) => (
+      <Pin key={pin._id} pin={pin} index={i} />
+    ))}
+  </Masonry>
+);
 
 export default MasonryLayout;

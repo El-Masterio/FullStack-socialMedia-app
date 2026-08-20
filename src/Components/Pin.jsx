@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { MdDownloadForOffline } from 'react-icons/md';
@@ -7,139 +7,179 @@ import { BsFillArrowUpRightCircleFill } from 'react-icons/bs';
 
 import { client, urlFor } from '../client';
 import { fetchUser } from '../utils/fetchUser';
+import Avatar from './Avatar';
 
-const Pin = ({ pin: { postedBy, image, _id, destination, save } }) => {
-  const [postHovered, setPostHovered] = useState(false);
+/* The old card asked Sanity for a single 250px-wide render, then displayed it
+   in a 400-600px column - the browser upscaled it ~2x, which is why pins
+   looked soft in the grid but sharp on the detail page. Now we hand the
+   browser a srcSet and let it pick. auto('format') serves WebP where
+   supported, so these are usually SMALLER files despite more pixels. */
+const WIDTHS = [300, 500, 800, 1100];
+const render = (image, w) =>
+  urlFor(image).width(w).auto('format').quality(75).url();
+
+const Pin = ({ pin: { postedBy, image, _id, destination, save }, index = 0 }) => {
+  const [hovered, setHovered] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+  const [savedList, setSavedList] = useState(save || []);
+  const [deleted, setDeleted] = useState(false);
 
   const navigate = useNavigate();
-
   const user = fetchUser();
-  const alreadySaved = !!save?.filter((item) => item.postedBy._id === user.sub)
-    ?.length;
 
-  // here we loop over and filter the saved posts and see the postedBy (in this case the people who like the post) , then compare it with the user id if his id match then he did like the post
-
-  // 1, [2,3,1,4] -> [1].length -> 1 -> !1 -> !false -> true
-  // 4, [2,3,1,7] -> [0].length -> 0 -> !0 -> !true -> false
+  const alreadySaved = !!savedList?.filter(
+    (item) => item?.postedBy?._id === user?.sub
+  )?.length;
 
   const savePin = (id) => {
-    if (!alreadySaved) {
-      client
-        .patch(id)
-        .setIfMissing({ save: [] })
-        .insert('after', 'save[-1]', [
-          {
-            _key: uuidv4(),
-            userId: user.sub,
-            postedBy: {
-              _type: 'postedBy',
-              _ref: user.sub,
-            },
-          },
+    if (alreadySaved) return;
+    client
+      .patch(id)
+      .setIfMissing({ save: [] })
+      .insert('after', 'save[-1]', [
+        {
+          _key: uuidv4(),
+          userId: user?.sub,
+          postedBy: { _type: 'postedBy', _ref: user?.sub },
+        },
+      ])
+      .commit()
+      .then(() =>
+        setSavedList((prev) => [
+          ...(prev || []),
+          { _key: uuidv4(), userId: user?.sub, postedBy: { _id: user?.sub } },
         ])
-        .commit()
-        .then(() => {
-          window.location.reload('/');
-        });
-    }
+      );
   };
 
-  const deletePin = (id) => {
-    client.delete(id).then(() => {
-      window.location.reload(`/`);
-    });
-  };
+  const deletePin = (id) => client.delete(id).then(() => setDeleted(true));
+
+  if (deleted) return null;
+
+  const stop = (e) => e.stopPropagation();
+  const ratio = image?.asset?.metadata?.dimensions?.aspectRatio;
+
   return (
-    <div className="m-2">
+    <div
+      className="mb-4 animate-rise"
+      /* Staggered reveal, capped so a long feed doesn't crawl in. */
+      style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
+    >
       <div
-        onMouseEnter={() => setPostHovered(true)}
-        onMouseLeave={() => setPostHovered(false)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
         onClick={() => navigate(`/pin-detail/${_id}`)}
-        className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
+        className="group relative w-full cursor-zoom-in overflow-hidden
+                   rounded-card bg-raised shadow-lift transition-shadow
+                   duration-300 ease-out hover:shadow-hover"
+        /* Reserving the ratio stops the masonry grid reflowing as images
+           arrive. Falls back to a pleasant portrait when metadata is absent. */
+        style={{ aspectRatio: ratio || '3 / 4' }}
       >
         <img
-          className="rounded-lg w-full"
-          alt="user-post"
-          src={urlFor(image).width(250).url()}
+          className={`h-full w-full object-cover transition-all duration-[600ms] ease-out
+                      ${loaded ? 'opacity-100' : 'opacity-0'}
+                      ${hovered ? 'scale-[1.04]' : 'scale-100'}`}
+          alt={`Pin by ${postedBy?.userName || 'a user'}`}
+          src={render(image, 500)}
+          srcSet={WIDTHS.map((w) => `${render(image, w)} ${w}w`).join(', ')}
+          sizes="(max-width:600px) 100vw, (max-width:900px) 50vw, (max-width:1280px) 33vw, (max-width:1800px) 25vw, 20vw"
+          loading={index < 6 ? 'eager' : 'lazy'}
+          decoding="async"
+          onLoad={() => setLoaded(true)}
         />
-        {postHovered && (
-          <div
-            className=" absolute top-0 w-full h-full flex flex-col justify-between p-1 pr-2 pt-2 pb-2 z-50"
-            style={{ height: '100%' }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
-                <a
-                  href={`${image?.asset?.url}?dl=`}
-                  download
-                  onClick={(e) => e.stopPropagation()}
-                  className="bg-white w-9 h-9 rounded-full flex justify-center items-center text-dark text-xl opacity-75 hover:opacity-100 hover:shadow-md outline-none"
-                >
-                  <MdDownloadForOffline />
-                </a>
-              </div>
-              {alreadySaved ? (
-                <button
-                  onClick={(e) => e.stopPropagation()}
-                  type="button"
-                  className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
-                >
-                  {save?.length} saved
-                </button>
-              ) : (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    savePin(_id);
-                  }}
-                  type="button"
-                  className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
-                >
-                  Save
-                </button>
-              )}
-            </div>
-            <div className="flex justify-between items-center gap-2 w-full">
-              {destination && (
-                <a
-                  href={destination}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="bg-white flex items-center gap-2 text-black font-bold p-2 pl-4 pr-4 rounded-full opacity-70 hover:opacity-100 hover:shadow-md"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <BsFillArrowUpRightCircleFill />
-                  {destination.length > 15
-                    ? `${destination.slice(0, 13)}...`
-                    : destination}
-                </a>
-              )}
-              {postedBy?._id === user.sub && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deletePin(_id);
-                  }}
-                  type="button"
-                  className="bg-white p-2 opacity-70 hover:opacity-100  font-bold text-dark text-base rounded-3xl hover:shadow-md outline-none"
-                >
-                  <AiTwotoneDelete />
-                </button>
-              )}
-            </div>
+
+        {/* Scrim: white controls were previously invisible on pale photos. */}
+        <div
+          className={`pointer-events-none absolute inset-0 bg-gradient-to-b
+                      from-black/45 via-transparent to-black/45
+                      transition-opacity duration-300
+                      ${hovered ? 'opacity-100' : 'opacity-0'}`}
+        />
+
+        <div
+          className={`absolute inset-0 flex flex-col justify-between p-3
+                      transition-all duration-300 ease-out
+                      ${hovered ? 'opacity-100' : 'pointer-events-none opacity-0'}`}
+        >
+          <div className="flex items-start justify-between gap-2">
+            <a
+              href={`${image?.asset?.url}?dl=`}
+              download
+              onClick={stop}
+              aria-label="Download image"
+              className="grid h-9 w-9 place-items-center rounded-full bg-white/95
+                         text-black shadow-lift backdrop-blur transition
+                         hover:scale-110 hover:bg-white"
+            >
+              <MdDownloadForOffline size={19} />
+            </a>
+
+            <button
+              type="button"
+              onClick={(e) => {
+                stop(e);
+                savePin(_id);
+              }}
+              disabled={alreadySaved}
+              className={`rounded-pill px-4 py-2 text-xs font-semibold shadow-lift
+                          transition hover:scale-105
+                          ${
+                            alreadySaved
+                              ? 'bg-white/90 text-black'
+                              : 'bg-accent text-on-accent'
+                          }`}
+            >
+              {alreadySaved ? `${savedList?.length} saved` : 'Save'}
+            </button>
           </div>
-        )}
+
+          <div className="flex items-end justify-between gap-2">
+            {destination ? (
+              <a
+                href={destination}
+                target="_blank"
+                rel="noreferrer"
+                onClick={stop}
+                className="flex items-center gap-1.5 rounded-pill bg-white/95 px-3 py-1.5
+                           text-xs font-medium text-black shadow-lift backdrop-blur
+                           transition hover:bg-white"
+              >
+                <BsFillArrowUpRightCircleFill size={13} />
+                {destination.replace(/^https?:\/\/(www\.)?/, '').slice(0, 18)}
+              </a>
+            ) : (
+              <span />
+            )}
+
+            {postedBy?._id === user?.sub && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  stop(e);
+                  deletePin(_id);
+                }}
+                aria-label="Delete pin"
+                className="grid h-9 w-9 place-items-center rounded-full bg-white/95
+                           text-black shadow-lift backdrop-blur transition
+                           hover:scale-110 hover:bg-accent hover:text-on-accent"
+              >
+                <AiTwotoneDelete size={17} />
+              </button>
+            )}
+          </div>
+        </div>
       </div>
+
       <Link
         to={`/user-profile/${postedBy?._id}`}
-        className="flex gap-2 mt-2 items-center"
+        className="mt-2.5 flex items-center gap-2 px-0.5 group/user"
       >
-        <img
-          className="w-8 h-8 rounded-full object-cover"
-          src={postedBy?.image}
-          alt="user-profile"
-        />
-        <p className="font-semibold capitalize">{postedBy?.userName}</p>
+        <Avatar src={postedBy?.image} name={postedBy?.userName} size="xs" />
+        <p className="truncate text-[0.8rem] font-medium capitalize text-muted
+                      transition-colors group-hover/user:text-ink">
+          {postedBy?.userName}
+        </p>
       </Link>
     </div>
   );
