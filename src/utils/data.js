@@ -89,6 +89,8 @@ export const pinDetailQuery = (pinId) => {
       image
     },
    save[]{
+     _key,
+     userId,
       postedBy->{
         _id,
         userName,
@@ -156,6 +158,8 @@ export const userCreatedPinsQuery = (userId) => {
       image
     },
     save[]{
+      _key,
+      userId,
       postedBy->{
         _id,
         userName,
@@ -182,6 +186,8 @@ export const userSavedPinsQuery = (userId) => {
       image
     },
     save[]{
+      _key,
+      userId,
       postedBy->{
         _id,
         userName,

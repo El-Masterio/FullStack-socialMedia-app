@@ -31,27 +31,48 @@ const PinDetail = ({ user }) => {
     window.scrollTo(0, 0);
   }, [pinId]);
 
+  /* Optimistic: the comment appears immediately. The old flow waited for the
+     write AND a full refetch before rendering anything, so posting felt slow
+     even though the write itself takes ~90ms. */
   const addComment = () => {
-    if (!comment.trim()) return;
+    const text = comment.trim();
+    if (!text || addingComment || !user?._id) return;
+
+    const _key = uuidv4();
+    const optimistic = {
+      _key,
+      comment: text,
+      postedBy: {
+        _id: user._id,
+        userName: user.userName,
+        image: user.image,
+      },
+    };
+
+    setPinDetail((prev) => ({
+      ...prev,
+      comments: [...(prev?.comments || []), optimistic],
+    }));
+    setComment('');
     setAddingComment(true);
 
     client
       .patch(pinId)
       .setIfMissing({ comments: [] })
       .insert('after', 'comments[-1]', [
-        {
-          comment,
-          _key: uuidv4(),
-          postedBy: { _type: 'postedBy', _ref: user._id },
-        },
+        { comment: text, _key, postedBy: { _type: 'postedBy', _ref: user._id } },
       ])
       .commit()
-      .then(() => {
-        fetchPinDetails(pinId, setPinDetail, setPins);
-        setComment('');
+      .then(() => setAddingComment(false))
+      .catch((err) => {
+        console.error('Comment failed, rolling back', err);
+        setPinDetail((prev) => ({
+          ...prev,
+          comments: (prev?.comments || []).filter((c) => c._key !== _key),
+        }));
+        setComment(text);
         setAddingComment(false);
-      })
-      .catch(() => setAddingComment(false));
+      });
   };
 
   if (!pinDetail) return <Spinner message="Loading pin…" />;

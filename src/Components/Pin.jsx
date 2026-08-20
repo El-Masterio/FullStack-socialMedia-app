@@ -23,6 +23,7 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save }, index = 0 }) =>
   const [loaded, setLoaded] = useState(false);
   const [savedList, setSavedList] = useState(save || []);
   const [deleted, setDeleted] = useState(false);
+  const [pending, setPending] = useState(false);
 
   const navigate = useNavigate();
   const user = fetchUser();
@@ -31,28 +32,59 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save }, index = 0 }) =>
     (item) => item?.postedBy?._id === user?.sub
   )?.length;
 
-  const savePin = (id) => {
-    if (alreadySaved) return;
-    client
-      .patch(id)
-      .setIfMissing({ save: [] })
-      .insert('after', 'save[-1]', [
-        {
-          _key: uuidv4(),
-          userId: user?.sub,
-          postedBy: { _type: 'postedBy', _ref: user?.sub },
-        },
-      ])
-      .commit()
-      .then(() =>
-        setSavedList((prev) => [
-          ...(prev || []),
-          { _key: uuidv4(), userId: user?.sub, postedBy: { _id: user?.sub } },
-        ])
+  /* Optimistic: state moves FIRST, the network call follows and only rolls
+     back on failure. Previously the UI waited for .commit() to resolve, so a
+     save appeared to hang even though the write itself takes ~90ms. */
+  const toggleSave = (id) => {
+    if (pending || !user?.sub) return;
+    const previous = savedList;
+    setPending(true);
+
+    const done = (p) =>
+      p.catch((err) => {
+        console.error('Save failed, rolling back', err);
+        setSavedList(previous);
+      }).finally(() => setPending(false));
+
+    if (alreadySaved) {
+      const mine = savedList.find((i) => i?.postedBy?._id === user.sub);
+      setSavedList((list) =>
+        (list || []).filter((i) => i?.postedBy?._id !== user.sub)
       );
+      /* Older entries predate _key, so fall back to matching on userId. */
+      const selector = mine?._key
+        ? `save[_key=="${mine._key}"]`
+        : `save[userId=="${user.sub}"]`;
+      done(client.patch(id).unset([selector]).commit());
+    } else {
+      const _key = uuidv4();
+      setSavedList((list) => [
+        ...(list || []),
+        { _key, userId: user.sub, postedBy: { _id: user.sub } },
+      ]);
+      done(
+        client
+          .patch(id)
+          .setIfMissing({ save: [] })
+          .insert('after', 'save[-1]', [
+            {
+              _key,
+              userId: user.sub,
+              postedBy: { _type: 'postedBy', _ref: user.sub },
+            },
+          ])
+          .commit()
+      );
+    }
   };
 
-  const deletePin = (id) => client.delete(id).then(() => setDeleted(true));
+  const deletePin = (id) => {
+    setDeleted(true);
+    client.delete(id).catch((err) => {
+      console.error('Delete failed, restoring pin', err);
+      setDeleted(false);
+    });
+  };
 
   if (deleted) return null;
 
@@ -115,22 +147,36 @@ const Pin = ({ pin: { postedBy, image, _id, destination, save }, index = 0 }) =>
               <MdDownloadForOffline size={19} />
             </a>
 
+            {/* Saved pins can now be un-saved: the label swaps to "Unsave"
+                on hover so the action is discoverable without a second button. */}
             <button
               type="button"
               onClick={(e) => {
                 stop(e);
-                savePin(_id);
+                toggleSave(_id);
               }}
-              disabled={alreadySaved}
-              className={`rounded-pill px-4 py-2 text-xs font-semibold shadow-lift
-                          transition hover:scale-105
+              disabled={pending}
+              aria-pressed={alreadySaved}
+              aria-label={alreadySaved ? 'Unsave this pin' : 'Save this pin'}
+              className={`group/save w-[104px] rounded-pill px-4 py-2 text-xs
+                          font-semibold shadow-lift transition-all duration-200
+                          hover:scale-105 disabled:opacity-60
                           ${
                             alreadySaved
-                              ? 'bg-white/90 text-black'
-                              : 'bg-accent text-on-accent'
+                              ? 'bg-white/95 text-black hover:bg-accent hover:text-on-accent'
+                              : 'bg-accent text-on-accent hover:brightness-110'
                           }`}
             >
-              {alreadySaved ? `${savedList?.length} saved` : 'Save'}
+              {alreadySaved ? (
+                <>
+                  <span className="group-hover/save:hidden">
+                    {savedList?.length} saved
+                  </span>
+                  <span className="hidden group-hover/save:inline">Unsave</span>
+                </>
+              ) : (
+                'Save'
+              )}
             </button>
           </div>
 
